@@ -12,12 +12,12 @@ Tester Game2D For PRP is a 2D Metroidvania-style game designed as a test project
 ## Installation
 ### Requirements:
 - Unity 2021.3.30f1
-- Git (if cloning the repository)
+- Git (https://github.com/Bet-dot/Prp_Demo02.git)
 
 ### Steps to Run the Project:
 1. Clone the repository:
    ```sh
-   git clone <repository_url>
+   git clone <https://github.com/Bet-dot/Prp_Demo02.git>
    ```
 2. Open the project in Unity.
 3. Click **Play** to start testing.
