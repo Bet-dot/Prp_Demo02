@@ -38,6 +38,11 @@ public class PlayerController : MonoBehaviour
     private bool isIdleBlocking = false; // Check if in idleBlock state
     private bool isBlockDelayed = false; // Check for block movement delay
 
+    // Dash Cooldown Settings
+    [Header("Dash Cooldown Settings")]
+    public float dashCooldownTime = 2f; // Time before roll can be used again
+    private bool isDashOnCooldown = false;
+
     // ------------------------------------------------------------------------------------------
     // Initialization Functions
     // ------------------------------------------------------------------------------------------
@@ -114,27 +119,30 @@ public class PlayerController : MonoBehaviour
             moveInput.x = Input.GetAxisRaw("Horizontal");
         }
 
+        // Check if player is moving
+        bool isMoving = moveInput.x != 0;
+
         // Flip character based on movement direction
         if (moveInput.x < 0)
         {
-            FlipPlayer(true);
+            FlipPlayer(true); // Flip to the left
         }
         else if (moveInput.x > 0)
         {
-            FlipPlayer(false);
+            FlipPlayer(false); // Flip to the right
         }
 
         // Update animation state
-        if (moveInput.x != 0)
+        if (isMoving)
         {
-            playerAnimator.SetInteger("AnimationState", 1);
+            playerAnimator.SetInteger("AnimationState", 1); // Set to Run
         }
         else
         {
-            playerAnimator.SetInteger("AnimationState", 0);
+            playerAnimator.SetInteger("AnimationState", 0); // Set to Idle
         }
 
-        // Check if block button is held down
+        // Handle the Block state
         if (inputActions.Player.Block.IsPressed()) // If the player is holding down the Block button
         {
             isIdleBlocking = true;
@@ -176,6 +184,13 @@ public class PlayerController : MonoBehaviour
     // Dash method
     private IEnumerator Dash()
     {
+        // Prevent Dash if cooldown is active
+        if (isDashOnCooldown)
+        {
+            Debug.Log("Dash is on cooldown!");
+            yield break;
+        }
+
         Debug.Log("Dash Started");
         isDashing = true;
         playerAnimator.SetTrigger("Roll");
@@ -195,7 +210,12 @@ public class PlayerController : MonoBehaviour
         moveSpeed = originalSpeed;
         isDashing = false;
 
-        Debug.Log("Dash Ended");
+        // Start Dash cooldown
+        isDashOnCooldown = true;
+        yield return new WaitForSeconds(dashCooldownTime); // Wait for cooldown time
+        isDashOnCooldown = false;
+
+        Debug.Log("Dash Ended, Cooldown Finished");
     }
 
     // Attack method
