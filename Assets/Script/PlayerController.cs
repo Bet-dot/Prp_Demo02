@@ -3,6 +3,7 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
+    // Input and component references
     private PlayerInputActions inputActions;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -16,11 +17,6 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 moveInput;
 
-    [Header("Ghost Settings")]
-    public GameObject ghostPrefab;
-    private GameObject ghostInstance;
-
-    // Attack Settings
     [Header("Attack Settings")]
     [SerializeField] private float attackDelay = 0.5f;
     [SerializeField] private float initialAttackDelay = 0.2f;
@@ -28,11 +24,12 @@ public class PlayerController : MonoBehaviour
     private bool isAttacking = false;
 
     [Header("Movement Delay Settings")]
-    public float movementDelay = 0.5f; // ตั้งค่าได้
+    public float movementDelay = 0.5f;
     private bool isMovementDelayed = false;
 
     private void Start()
     {
+        // Initialize components
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimator = GetComponent<Animator>();
         Debug.Log("PlayerController Started");
@@ -40,9 +37,11 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        // Initialize input actions and rigidbody
         inputActions = new PlayerInputActions();
         rb = GetComponent<Rigidbody2D>();
 
+        // Assign input events
         inputActions.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         inputActions.Player.Move.canceled += ctx => moveInput = Vector2.zero;
         inputActions.Player.Jump.performed += ctx => Jump();
@@ -64,26 +63,36 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Handle movement unless dashing
         if (!isDashing)
         {
             rb.velocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
         }
 
+        // Grounded state handling
         bool isGrounded = IsGrounded();
         playerAnimator.SetBool("IsGrounded", isGrounded);
+
+        // Allow movement if not attacking or airborne
+        if (!isAttacking || !isGrounded)
+        {
+            rb.velocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
+        }
     }
 
     private void Update()
     {
-        if (isAttacking || isMovementDelayed) // หากกำลังโจมตีหรือดีเลย์การเคลื่อนที่
+        // Handle movement input restrictions during attack or movement delay
+        if (isAttacking || isMovementDelayed)
         {
-            moveInput = Vector2.zero; // หยุดการเคลื่อนที่
+            moveInput = Vector2.zero;
         }
         else
         {
             moveInput.x = Input.GetAxisRaw("Horizontal");
         }
 
+        // Flip character based on movement direction
         if (moveInput.x < 0)
         {
             FlipPlayer(true);
@@ -93,6 +102,7 @@ public class PlayerController : MonoBehaviour
             FlipPlayer(false);
         }
 
+        // Update animation state
         if (moveInput.x != 0)
         {
             playerAnimator.SetInteger("AnimationState", 1);
@@ -102,11 +112,13 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetInteger("AnimationState", 0);
         }
 
+        // Move the player
         transform.Translate(Vector2.right * moveInput.x * moveSpeed * Time.deltaTime);
     }
 
     private void Jump()
     {
+        // Handle jumping only when grounded
         if (IsGrounded())
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
@@ -123,125 +135,73 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("Dash Started");
         isDashing = true;
-
-        // เพิ่ม trigger roll ในการ Dash
-        playerAnimator.SetTrigger("Roll"); // เรียกใช้ Trigger roll
+        playerAnimator.SetTrigger("Roll");
 
         float originalSpeed = moveSpeed;
+        float originalDashSpeed = dashSpeed; // Store original dash speed
+
+        dashSpeed *= 1.5f; // Increase dash speed temporarily
         moveSpeed = dashSpeed;
 
-        if (ghostInstance == null)
-        {
-            ghostInstance = Instantiate(ghostPrefab, transform.position, Quaternion.identity);
-            ghostInstance.SetActive(true);
-        }
+        yield return new WaitForSeconds(0.2f); // Dash duration
 
-        for (int i = 0; i < 5; i++)
-        {
-            CreateGhost();
-            yield return new WaitForSeconds(0.05f);
-        }
-
-        yield return new WaitForSeconds(0.2f);
-
+        dashSpeed = originalDashSpeed; // Restore original dash speed
         moveSpeed = originalSpeed;
         isDashing = false;
-
-        if (ghostInstance != null)
-        {
-            ghostInstance.SetActive(false);
-        }
 
         Debug.Log("Dash Ended");
     }
 
-    private void CreateGhost()
-    {
-        GameObject ghost = Instantiate(ghostPrefab, transform.position, Quaternion.identity);
-        FlipGhost(ghost, moveInput.x);
-
-        Animator ghostAnimator = ghost.GetComponent<Animator>();
-        if (ghostAnimator != null)
-        {
-            ghostAnimator.runtimeAnimatorController = playerAnimator.runtimeAnimatorController;
-        }
-
-        StartCoroutine(FadeOutGhost(ghost.GetComponent<SpriteRenderer>()));
-    }
-
-    private void FlipGhost(GameObject ghost, float moveDirection)
-    {
-        if (moveDirection < 0)
-        {
-            ghost.transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else if (moveDirection > 0)
-        {
-            ghost.transform.localScale = new Vector3(1, 1, 1);
-        }
-    }
-
-    private IEnumerator FadeOutGhost(SpriteRenderer ghostRenderer)
-    {
-        float elapsedTime = 0f;
-        Color initialColor = ghostRenderer.color;
-
-        while (elapsedTime < 0.5f)
-        {
-            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / 0.5f);
-            ghostRenderer.color = new Color(initialColor.r, initialColor.g, initialColor.b, alpha);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
-        Destroy(ghostRenderer.gameObject);
-    }
-
     private bool IsGrounded()
     {
+        // Check if the player is touching the ground
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.1f);
         return hit.collider != null;
     }
 
     private void FlipPlayer(bool flip)
     {
-        if (flip)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
+        // Flip sprite based on movement direction
+        spriteRenderer.flipX = flip;
     }
 
     private IEnumerator Attack()
     {
+        // Prevent multiple attacks at once
         if (isAttacking)
         {
             Debug.Log("Attack already in progress");
             yield break;
         }
 
+        // Prevent attacking while airborne
+        if (!IsGrounded())
+        {
+            Debug.Log("Cannot attack while in the air");
+            yield break;
+        }
+
         isAttacking = true;
         Debug.Log("Attack Started");
 
-        // ดีเลย์ก่อนเริ่มท่าแรก
+        // Initial attack delay
         yield return new WaitForSeconds(initialAttackDelay);
         Debug.Log("Initial Attack Delay Passed");
 
+        // Cycle through attack states
         attackState++;
-
         if (attackState > 2)
         {
             attackState = 0;
             Debug.Log("Resetting attack state to 0 (Attack1)");
         }
 
+        // Reset attack animation triggers
         playerAnimator.ResetTrigger("Attack1");
         playerAnimator.ResetTrigger("Attack2");
         playerAnimator.ResetTrigger("Attack3");
 
+        // Set the correct attack animation
         if (attackState == 0)
         {
             playerAnimator.SetTrigger("Attack1");
@@ -258,16 +218,18 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Performing Attack3");
         }
 
-        // ดีเลย์การเคลื่อนที่หลังจากโจมตี
-        isMovementDelayed = true;
-        yield return new WaitForSeconds(movementDelay); // ดีเลย์การเคลื่อนที่
-        isMovementDelayed = false;
+        // Apply movement delay only when grounded
+        if (IsGrounded())
+        {
+            isMovementDelayed = true;
+            yield return new WaitForSeconds(movementDelay);
+            isMovementDelayed = false;
+        }
 
+        // Attack cooldown
         yield return new WaitForSeconds(attackDelay);
         Debug.Log($"Attack {attackState + 1} Finished");
 
         isAttacking = false;
     }
-
-
 }
