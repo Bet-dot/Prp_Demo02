@@ -25,15 +25,14 @@ Tester Game2D For PRP is a 2D Metroidvania-style game designed as a test project
 ## Controls
 - **Arrow Keys / WASD** - Move
 - **Space** - Jump
-- **Attack Button (Specify Key)** - Attack
-- **Other Abilities (Specify if applicable)**
+- **Attack Button [J] - Attack
+- **Block Botton [L] - Block
 
 ## Development Goals
 This project is intended as a prototype to showcase movement and combat mechanics for further development. Feedback from PRP will be used to improve and refine the game.
 
 ## Credits
 - **Developer**: Bets
-- **Additional Contributions**: (List if applicable)
 
 ## Contact
 For inquiries, feedback, or collaboration opportunities, please reach out to:
