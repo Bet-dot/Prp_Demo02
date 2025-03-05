@@ -1,4 +1,4 @@
-#Game2D Demo For Parapluie Studio
+## Game2D Demo For Parapluie Studio
 
 ## Overview
 Tester Game2D For PRP is a 2D Metroidvania-style game designed as a test project for PRP. The game features fluid character movement, precise platforming mechanics, and engaging combat inspired by titles like Blasphemous.
