@@ -250,6 +250,17 @@
                 },
                 {
                     "name": "",
+                    "id": "861e2c59-65c3-4c55-ace0-028607dbc527",
+                    "path": "<XInputController>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "a9b799bc-5701-48e0-9f76-a8cff46f9bc7",
                     "path": "<Keyboard>/l",
                     "interactions": "",
@@ -263,6 +274,17 @@
                     "name": "",
                     "id": "049e3d5a-caa0-40aa-bcfb-834115bab2ed",
                     "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Block",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1d722ee4-1230-4e66-8cd2-955a9a4e41fa",
+                    "path": "<XInputController>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -294,8 +316,30 @@
                 },
                 {
                     "name": "",
+                    "id": "94e6277a-8a2f-4e1c-be01-86f1e9333112",
+                    "path": "<XInputController>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "1fdcf725-335a-4a40-bfd1-9f65239f8ea0",
                     "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ESC",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "94feeb05-6c9e-417e-b09a-3b1bd47c41f3",
+                    "path": "<XInputController>/start",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

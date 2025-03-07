@@ -2272,10 +2272,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c038d51690bfce64e87af79eaf64aae4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 1231413639}
   moveSpeed: 2
   detectionRadius: 3
   changeDirectionTime: 2
   idleTime: 1
+  minX: -5
+  maxX: 5
+  isDead: 0
 --- !u!212 &1112060480
 SpriteRenderer:
   m_ObjectHideFlags: 0

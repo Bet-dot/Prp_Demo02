@@ -3,24 +3,27 @@ using System.Collections;
 
 public class EnemyAI : MonoBehaviour
 {
+    [Header("AI Settings")]
+    public Transform player; // ตำแหน่งของผู้เล่น
     public float moveSpeed = 2f; // ความเร็วในการเดินของศัตรู
     public float detectionRadius = 5f; // ระยะการตรวจจับของศัตรู
-    public float changeDirectionTime = 2f; // เวลาที่ AI จะเปลี่ยนทิศทาง (หน่วยเป็นวินาที)
+    public float changeDirectionTime = 2f; // เวลาที่ AI จะเปลี่ยนทิศทาง
     public float idleTime = 1f; // เวลาที่ AI จะหยุดนิ่งก่อนที่จะเดินไปทางใหม่
+
+    [Header("Movement Boundaries")]
+    public float minX = -5f; // ขอบเขตต่ำสุดในแกน X
+    public float maxX = 5f; // ขอบเขตสูงสุดในแกน X
+
+    [Header("State Settings")]
+    public bool isDead = false; // เช็คว่า AI ตายหรือไม่
 
     private Animator animator; // ตัวแปรเก็บ Animator ของศัตรู
     private Vector2 targetPosition; // ตำแหน่งที่ AI จะเดินไป
-    private bool isDead = false; // ตัวแปรเช็คว่า AI ตายหรือไม่
-    private float minX; // ขอบเขตต่ำสุด X
-    private float maxX; // ขอบเขตสูงสุด X
     private bool isWaiting = false; // เช็คว่า AI กำลังหยุดนิ่งหรือไม่
 
     private void Start()
     {
         animator = GetComponent<Animator>(); // รับ Animator ของศัตรู
-        // ตั้งค่าขอบเขต X โดยใช้ตำแหน่งของ AI เป็นจุดกลาง
-        minX = transform.position.x - 5f; // ขอบเขตต่ำสุดในแกน X
-        maxX = transform.position.x + 5f; // ขอบเขตสูงสุดในแกน X
         SetNewTargetPosition(); // กำหนดตำแหน่งเป้าหมายเริ่มต้น
         InvokeRepeating("SetNewTargetPosition", changeDirectionTime, changeDirectionTime); // ตั้งเวลาการเปลี่ยนทิศทาง
     }
@@ -30,12 +33,33 @@ public class EnemyAI : MonoBehaviour
         if (isDead)
             return;
 
-        // หาก AI กำลังหยุดนิ่ง, อย่าทำอะไร
-        if (isWaiting)
-            return;
+        // ตรวจสอบระยะห่างจากผู้เล่น
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // เดินไปยังตำแหน่งเป้าหมาย
-        MoveTowardsTarget();
+        if (distanceToPlayer < detectionRadius) // หากผู้เล่นอยู่ในระยะการตรวจจับ
+        {
+            // เดินไปหาผู้เล่น
+            MoveTowardsPlayer();
+        }
+        else
+        {
+            // หากผู้เล่นห่างออกไป
+            if (!isWaiting) // ถ้า AI กำลังไม่หยุดนิ่ง
+                MoveTowardsTarget(); // เดินไปยังตำแหน่งที่สุ่ม
+        }
+    }
+
+    private void MoveTowardsPlayer()
+    {
+        // คำนวณทิศทางและเดินไปหาผู้เล่น
+        Vector2 direction = (player.position - transform.position).normalized;
+        transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
+
+        // เปลี่ยนสถานะเป็นเดิน (Walk)
+        animator.SetBool("isWalking", true);
+
+        // พลิกทิศทางการเดินของ AI (flip) ตามทิศทางที่มันเคลื่อนที่
+        Flip(direction);
     }
 
     private void MoveTowardsTarget()
@@ -45,7 +69,7 @@ public class EnemyAI : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
         // เปลี่ยนสถานะเป็นเดิน (Walk)
-        animator.SetBool("isWalking", true); // ตั้งค่า isWalking เป็น true เมื่อ AI กำลังเคลื่อนไหว
+        animator.SetBool("isWalking", true); // ตั้งค่า isWalking เป็น true เมื่อ AI กำลังกระทำการเดิน
 
         // พลิกทิศทางการเดินของ AI (flip) ในแนว X
         Flip(direction);
