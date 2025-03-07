@@ -184,31 +184,46 @@ public class PlayerController : MonoBehaviour
     // Dash method
     private IEnumerator Dash()
     {
-        // Prevent Dash if cooldown is active
-        if (isDashOnCooldown)
+        // Prevent Dash if cooldown is active or already dashing
+        if (isDashOnCooldown || isDashing)
         {
-            Debug.Log("Dash is on cooldown!");
+            Debug.Log("Dash is either on cooldown or already in progress!");
+            yield break;
+        }
+
+        // Prevent Dash if player is not moving (i.e., standing still)
+        if (moveInput.x == 0)
+        {
+            Debug.Log("Cannot dash while standing still!");
             yield break;
         }
 
         Debug.Log("Dash Started");
-        isDashing = true;
+        isDashing = true; // Mark the player as dashing
         playerAnimator.SetTrigger("Roll");
 
-        float originalSpeed = moveSpeed;
+        // Determine the direction of the dash based on the player's facing direction
+        Vector2 dashDirection = transform.right; // Use the player's right vector for direction (Facing direction)
+
+        float originalSpeed = moveSpeed; // Store the original move speed
         float originalDashSpeed = dashSpeed; // Store original dash speed
 
         dashSpeed *= 1.5f; // Increase dash speed temporarily
-        moveSpeed = dashSpeed;
+        moveSpeed = dashSpeed; // Apply dash speed temporarily
 
+        // Set the player's velocity to the dash direction and speed
+        rb.velocity = dashDirection * dashSpeed;
+
+        // Wait for the dash duration
         yield return new WaitForSeconds(0.2f); // Dash duration
 
         // Delay after Dash for 2 frames (around 0.0333f * 2 at 60 FPS)
         yield return new WaitForSeconds(0.0333f * 2);
 
         dashSpeed = originalDashSpeed; // Restore original dash speed
-        moveSpeed = originalSpeed;
-        isDashing = false;
+        moveSpeed = originalSpeed; // Restore original move speed (after cooldown)
+
+        isDashing = false; // Mark the player as no longer dashing
 
         // Start Dash cooldown
         isDashOnCooldown = true;
@@ -217,6 +232,8 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Dash Ended, Cooldown Finished");
     }
+
+
 
     // Attack method
     private IEnumerator Attack()
