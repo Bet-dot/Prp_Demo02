@@ -2274,9 +2274,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1231413639}
   moveSpeed: 2
-  detectionRadius: 3
-  changeDirectionTime: 2
+  detectionRadius: 5
+  changeDirectionTime: 1
   idleTime: 1
+  raycastDistance: 1
   minX: -5
   maxX: 5
   isDead: 0
@@ -2340,7 +2341,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1112060477}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 61.521, y: -2.66, z: -9.963784}
+  m_LocalPosition: {x: 22.99, y: -2.66, z: -9.963784}
   m_LocalScale: {x: 2.4, y: 2.4, z: 2.4}
   m_ConstrainProportionsScale: 1
   m_Children: []
